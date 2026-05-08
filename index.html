@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Umrechner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c2f33;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-card {
+            background-color: #23272a;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #99aab5;
+            text-align: left;
+        }
+        input, select {
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #7289da;
+            background-color: #2c2f33;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="number"] {
+            flex: 1; /* Nimmt den restlichen Platz ein */
+        }
+        select.unit-select {
+            width: 180px; /* Feste Breite für das Dropdown */
+        }
+        .equals-sign {
+            font-size: 24px;
+            font-weight: bold;
+            color: #7289da;
+            margin: 10px 0;
+        }
+        .global-settings {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2 style="margin-bottom: 30px;">Minecraft Umrechner</h2>
+    
+    <!-- Feld 1 -->
+    <div class="input-group">
+        <input type="number" id="value1" value="1" min="0" oninput="calculate(1)">
+        <select id="unit1" class="unit-select" onchange="calculate(1)">
+            <option value="dk">Doppelkiste (DK)</option>
+            <option value="ek">Einzelkiste (EK)</option>
+            <option value="stack">Stack</option>
+            <option value="items">Einzelne Items</option>
+        </select>
+    </div>
+
+    <div class="equals-sign">=</div>
+
+    <!-- Feld 2 -->
+    <div class="input-group">
+        <input type="number" id="value2" value="3456" min="0" oninput="calculate(2)">
+        <select id="unit2" class="unit-select" onchange="calculate(2)">
+            <option value="items" selected>Einzelne Items</option>
+            <option value="stack">Stack</option>
+            <option value="ek">Einzelkiste (EK)</option>
+            <option value="dk">Doppelkiste (DK)</option>
+        </select>
+    </div>
+
+    <!-- Einstellung am Ende -->
+    <div class="global-settings">
+        <label for="stackSize">Items pro Stack:</label>
+        <select id="stackSize" style="width: 100%;" onchange="calculate(1)">
+            <option value="64">64 (Standard: Stein, Erde etc.)</option>
+            <option value="16">16 (Enderperlen, Schneebälle etc.)</option>
+            <option value="32">32</option>
+        </select>
+    </div>
+</div>
+
+<script>
+    function calculate(sourceChanged) {
+        const stackSize = parseInt(document.getElementById('stackSize').value);
+        
+        // Multiplikatoren: Wie viele Items entspricht eine Einheit?
+        const multipliers = {
+            'items': 1,
+            'stack': stackSize,
+            'ek': 27 * stackSize,
+            'dk': 54 * stackSize
+        };
+
+        const unit1 = document.getElementById('unit1').value;
+        const unit2 = document.getElementById('unit2').value;
+
+        if (sourceChanged === 1) {
+            // Wenn oben (Feld 1) etwas geändert wurde, berechne unten (Feld 2) neu
+            let val1 = parseFloat(document.getElementById('value1').value) || 0;
+            let totalItems = val1 * multipliers[unit1];
+            let result2 = totalItems / multipliers[unit2];
+            
+            document.getElementById('value2').value = Number.isInteger(result2) ? result2 : result2.toFixed(2);
+            
+        } else if (sourceChanged === 2) {
+            // Wenn unten (Feld 2) etwas geändert wurde, berechne oben (Feld 1) neu
+            let val2 = parseFloat(document.getElementById('value2').value) || 0;
+            let totalItems = val2 * multipliers[unit2];
+            let result1 = totalItems / multipliers[unit1];
+            
+            document.getElementById('value1').value = Number.isInteger(result1) ? result1 : result1.toFixed(2);
+        }
+    }
+
+    // Beim Laden der Seite einmal initial berechnen
+    calculate(1);
+</script>
+
+</body>
+</html>
